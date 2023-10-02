@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cors = require("cors");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const helmet = require("helmet"); // Import helmet middleware
 const UserRoutes = require("./routes/UserRoutes");
 const RegRoutes = require("./routes/RegNoRoutes");
 dotenv.config();
@@ -19,10 +20,13 @@ app.use(
   })
 );
 
+// Use the helmet middleware to remove X-Powered-By header
+app.use(helmet());
+
 const PORT = process.env.PORT || 8000;
 
 app.listen(PORT, () =>
-  console.log(`Server successfully  started on : ${PORT}`)
+  console.log(`Server successfully started on: ${PORT}`)
 );
 
 mongoose.connect(
@@ -32,14 +36,15 @@ mongoose.connect(
     useUnifiedTopology: true,
   },
   (err) => {
-    if (err) return console.error(err);
-    console.log("Successfully Connected to MongoDB");
+    if (err) {
+      console.error("Failed to connect to MongoDB. Check your configuration.");
+      process.exit(1);
+    } else {
+      console.log("Successfully Connected to MongoDB");
+    }
   }
 );
 
-
-
-
-//user routes
+// User routes
 app.use("/user", UserRoutes);
 app.use("/ReistrationCode", RegRoutes);
